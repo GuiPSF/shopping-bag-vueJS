@@ -1,33 +1,47 @@
 <template>
     <div class="basket">
-      <div class="items">
+      <div v-if="productsInBag.length" class="items">
   
-        <div class="item">
-          <div class="remove">Remove item</div>
-          <div class="photo"><img src="https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg" alt=""></div>
-          <div class="description">Mens Casual Premium Slim Fit T-Shirts </div>
+        <div v-for="(product, index) in this.productsInBag" :key="index" class="item">
+          <div @click="this.$store.dispatch('removeFromBag', product.id)" class="remove">Remove Item</div>
+          <div class="photo"><img :src="product.image" alt=""></div>
+          <div class="description">{{ product.title }}</div>
           <div class="price">
             <span class="quantity-area">
-              <button disabled="">-</button>
-              <span class="quantity">1</span>
-              <button>+</button>
+              <button @click="product.quantity--" :disabled="product.quantity <= 1">-</button>
+              <span class="quantity">{{ product.quantity }}</span>
+              <button @click="product.quantity++">+</button>
             </span>
-            <span class="amount">US$ 22.30</span>
+            <span class="amount">US$ {{ (product.price * product.quantity).toFixed(2) }}</span>
           </div>
         </div>
-        <div class="grand-total"> Grand Total: US$ 22.30</div>
-  
+        <div class="grand-total"> Grand Total: US$ {{ orderTotal() }}</div>
+
+      </div>
+        <div v-else>
+        <h1>Bag is empty</h1>
       </div>
     </div>
   </template>
   
   <script>
+
+    import { mapState } from 'vuex'
   
   export default {
-    name: 'ShoppingBasket',
+    
+    name: 'Basket',
+
+    computed: mapState (['productsInBag']),
   
     methods: {
-     
+      orderTotal() {
+        var total = 0;
+        this.productsInBag.forEach(item => {
+          total += item.price * item.quantity;
+        })
+        return total.toFixed(2);
+      }
     },
    
   }
